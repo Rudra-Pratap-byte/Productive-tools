@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #f1f1f1;
+        }
+
+        canvas {
+            border: 2px solid #3a3f47;
+            border-radius: 16px;
+            background: #181a1b;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            margin-bottom: 2rem;
+            transition: box-shadow 0.3s;
+        }
+
+        .toolbox {
+            background: rgba(34, 40, 49, 0.95);
+            border: 1px solid #232931;
+            border-radius: 12px;
+            display: flex;
+            width: 820px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.2);
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toolbox>* {
+            background: #232931;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            height: 48px;
+            width: 48px;
+            margin: 0 0.25rem;
+            padding: 0.25rem;
+            cursor: pointer;
+            border-radius: 8px;
+            color: #f1f1f1;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .toolbox>*:hover,
+        .toolbox>*:focus {
+            background: #393e46;
+            color: #00adb5;
+            outline: none;
+        }
+
+        .toolbox>span#size {
+            background: transparent;
+            color: #00adb5;
+            font-size: 1.7rem;
+            font-weight: bold;
+            width: 48px;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .toolbox>input[type="color"] {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: none;
+            padding: 0;
+            background: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 0.2s;
+        }
+
+        .toolbox>input[type="color"]:hover {
+            box-shadow: 0 4px 16px rgba(0, 173, 181, 0.2);
+        }
+
+        .toolbox>button#clear {
+            background: #ff2e63;
+            color: #fff;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .toolbox>button#clear:hover {
+            background: #e84545;
+            color: #fff;
+        }
+
+        .back-to-home {
+            margin: 2em 0;
+            text-align: center;
+        }
+
+        .back-to-home a {
+            display: inline-block;
+            padding: 0.75em 2em;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s;
+        }
+
+        .back-to-home a:hover {
+            background: #10b981;
+        }
+    </style>
+    <title>Drawing App</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="700"></canvas>
+    <div class="toolbox">
+        <button id="decrease">-</button>
+        <span id="size">10</span>
+        <button id="increase">+</button>
+        <input type="color" id="color">
+        <button id="clear">X</button>
+    </div>
+
+    <div class="back-to-home">
+        <a href="home-pg.html">
+            ⬅️ Back to Home Page
+        </a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const increaseBtn = document.getElementById('increase');
+        const decreaseBtn = document.getElementById('decrease');
+        const sizeEL = document.getElementById('size');
+        const colorEl = document.getElementById('color');
+        const clearEl = document.getElementById('clear');
+
+        const ctx = canvas.getContext('2d');
+
+        let size = 10
+        let isPressed = false
+        colorEl.value = 'black'
+        let color = colorEl.value
+        let x
+        let y
+
+        canvas.addEventListener('mousedown', (e) => {
+            isPressed = true
+
+            x = e.offsetX
+            y = e.offsetY
+        })
+
+        document.addEventListener('mouseup', (e) => {
+            isPressed = false
+
+            x = undefined
+            y = undefined
+        })
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isPressed) {
+                const x2 = e.offsetX
+                const y2 = e.offsetY
+
+                drawCircle(x2, y2)
+                drawLine(x, y, x2, y2)
+
+                x = x2
+                y = y2
+            }
+        })
+
+        function drawCircle(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2)
+            ctx.fillStyle = color
+            ctx.fill()
+        }
+
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath()
+            ctx.moveTo(x1, y1)
+            ctx.lineTo(x2, y2)
+            ctx.strokeStyle = color
+            ctx.lineWidth = size * 2
+            ctx.stroke()
+        }
+
+        function updateSizeOnScreen() {
+            sizeEL.innerText = size
+        }
+
+        increaseBtn.addEventListener('click', () => {
+            size += 5
+
+            if (size > 50) {
+                size = 50
+            }
+
+            updateSizeOnScreen()
+        })
+
+        decreaseBtn.addEventListener('click', () => {
+            size -= 5
+
+            if (size < 5) {
+                size = 5
+            }
+
+            updateSizeOnScreen()
+        })
+
+        colorEl.addEventListener('change', (e) => color = e.target.value)
+
+        clearEl.addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height))
+    </script>
+</body>
+
+</html>

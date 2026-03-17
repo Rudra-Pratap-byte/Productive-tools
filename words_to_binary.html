@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Words & Binary Converter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #111827;
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .container {
+      background: #1f2937;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 650px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    textarea, .output {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-family: monospace;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 1rem;
+      background-color: #374151;
+      color: #f9fafb;
+    }
+
+    .output {
+      background-color: #272e3b;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .active {
+      background: #10b981 !important;
+    }
+
+    .back-home {
+      margin: 2em 0;
+      text-align: center;
+    }
+
+    .back-home a {
+      display: inline-block;
+      padding: 0.75em 2em;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.1em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background 0.2s;
+    }
+
+    .back-home a:hover {
+      background: #10b981;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Words ↔ Binary Converter</h1>
+
+    <div class="controls">
+      <button id="toBinary" class="active" onclick="setMode('text-to-binary')">Text ➡️ Binary</button>
+      <button id="toText" onclick="setMode('binary-to-text')">Binary ➡️ Text</button>
+    </div>
+
+    <textarea id="inputText" placeholder="Type your text or binary here..."></textarea>
+    <button onclick="convert()">Convert</button>
+    <div class="output" id="output"></div>
+  </div>
+
+  <div class="back-home">
+    <a href="home-pg.html">
+      ⬅️ Back to Home Page
+    </a>
+  </div>
+
+  <script>
+    let mode = "text-to-binary";
+
+    function setMode(selectedMode) {
+      mode = selectedMode;
+      document.getElementById("toBinary").classList.toggle("active", mode === "text-to-binary");
+      document.getElementById("toText").classList.toggle("active", mode === "binary-to-text");
+      document.getElementById("output").textContent = "";
+    }
+
+    function convertWordsToBinary(text) {
+      return text
+        .split('')
+        .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
+        .join(' ');
+    }
+
+    function convertBinaryToWords(binaryText) {
+      const binaryGroups = binaryText.trim().split(/\s+/);
+      const isValid = binaryGroups.every(bin => /^[01]{8}$/.test(bin));
+
+      if (!isValid) return "Invalid binary input! Use 8-bit binary values separated by spaces.";
+
+      return binaryGroups
+        .map(bin => String.fromCharCode(parseInt(bin, 2)))
+        .join('');
+    }
+
+    function convert() {
+      const input = document.getElementById("inputText").value.trim();
+      let result = "";
+
+      if (mode === "text-to-binary") {
+        result = input ? convertWordsToBinary(input) : "Please enter some text.";
+      } else {
+        result = input ? convertBinaryToWords(input) : "Please enter binary code (8-bit values).";
+      }
+
+      document.getElementById("output").textContent = result;
+    }
+  </script>
+
+</body>
+</html>

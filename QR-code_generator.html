@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1c23, #3d3f54);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        section {
+            background: rgba(28, 30, 38, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .qr-text {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #414866;
+            background: #1e2030;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+
+        .qr-text::placeholder {
+            color: #b0b4ce;
+        }
+
+        #qr-code {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #ffffff;
+            /* crisp white */
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        #qr-code canvas {
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+        }
+
+        #qr-code img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .action-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #6a2bff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            transition: background 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #7f48ff;
+            box-shadow: 0 0 10px rgba(122, 89, 255, 0.5);
+        }
+
+        .btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .back-home {
+            margin: 2em 0;
+            text-align: center;
+        }
+
+        .back-home a {
+            display: inline-block;
+            padding: 0.75em 2em;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s;
+        }
+
+        .back-home a:hover {
+            background: #10b981;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <section>
+        <input type="text" class="qr-text" placeholder="Enter QR Text">
+        <div id="qr-code"></div>
+        <div class="action-container">
+            <a href="#" class="download btn" download="QRCode">
+                <span>Download</span>
+                <img src="download.svg" alt="">
+            </a>
+            <button class="btn share-btn">
+                <span>Share</span>
+                <img src="share.svg" alt="">
+            </button>
+        </div>
+    </section>
+
+    <div class="back-home">
+        <a href="home-pg.html">
+            ⬅️ Back to Home Page
+        </a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const download = document.querySelector(".download");
+        const qrContainer = document.querySelector("#qr-code");
+        const qrText = document.querySelector(".qr-text");
+        const shareBtn = document.querySelector(".share-btn");
+
+
+        qrText.addEventListener("input", handleQRText);
+        shareBtn.addEventListener("click", handleShare);
+
+        function handleQRText(e) {
+            const value = e.target.value.trim();
+            text = value || defaultUrl;
+            generateQRCode();
+        }
+
+        async function generateQRCode() {
+            qrContainer.innerHTML = "";
+            new QRCode("qr-code", {
+                text,
+                width: 400,
+                height: 400,
+                colorDark: "#000000",
+                colorLight: "#ffffff"
+            });
+            download.href = await resolveDataUrl();
+        }
+
+        async function handleShare() {
+            setTimeout(async () => {
+                try {
+                    const base64url = await resolveDataUrl();
+                    const blob = await (await fetch(base64url)).blob();
+                    const file = new File([blob], "QRCode.png", {
+                        type: blob.type,
+                    });
+                    await navigator.share({
+                        files: [file],
+                        title: text,
+                    });
+                } catch (error) {
+                    alert("Your browser doesn't support sharing.");
+                }
+            }, 100);
+        }
+
+        function resolveDataUrl() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const img = document.querySelector("#qr-code img");
+                    if (img && img.currentSrc) {
+                        resolve(img.currentSrc);
+                        return;
+                    }
+                    const canvas = document.querySelector("#qr-code canvas");
+                    resolve(canvas.toDataURL());
+                }, 50);
+            });
+        }
+
+        generateQRCode();
+    </script>
+</body>
+
+</html>

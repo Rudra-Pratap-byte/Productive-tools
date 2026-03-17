@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Basic Calculator</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #232526 0%, #18181c 100%);
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calculator {
+            width: 340px;
+            margin: 0 auto;
+            background: rgba(33, 35, 37, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(161, 161, 161, 0.37);
+            overflow: hidden;
+            border: 1px solid #232931;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+        }
+
+        .display {
+            width: 100%;
+            padding: 1rem;
+            font-size: 2.2rem;
+            text-align: right;
+            border: none;
+            box-sizing: border-box;
+            background: #181a1b;
+            color: #f1f1f1;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            outline: none;
+            letter-spacing: 2px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+        }
+
+        .top-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .bottom-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .button {
+            padding: 1.1rem 0;
+            font-size: 1.35rem;
+            border: none;
+            background: #333336;
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            font-weight: 500;
+            aspect-ratio: 1/1;
+            outline: none;
+            user-select: none;
+        }
+
+        .button:hover,
+        .button:focus {
+            filter: brightness(1.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* iPhone calculator colors */
+        .operator {
+            background: linear-gradient(135deg, #ff9500 80%, #ffb347 100%);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .operator:hover,
+        .operator:focus {
+            background: linear-gradient(135deg, #ffb347 80%, #ff9500 100%);
+            color: #fff;
+        }
+
+        .equal {
+            background: linear-gradient(135deg, #ff9500 80%, #ffb347 100%);
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 2px 12px rgba(255, 149, 0, 0.15);
+        }
+
+        .equal:hover,
+        .equal:focus {
+            background: linear-gradient(135deg, #ffb347 80%, #ff9500 100%);
+            color: #fff;
+        }
+
+        .clear {
+            background: linear-gradient(135deg, #a5a5a5 80%, #d1d1d1 100%);
+            color: #232931;
+            font-weight: bold;
+        }
+
+        .clear:hover,
+        .clear:focus {
+            background: linear-gradient(135deg, #d1d1d1 80%, #a5a5a5 100%);
+            color: #232931;
+        }
+
+        .backspace {
+            background: linear-gradient(135deg, #a5a5a5 80%, #d1d1d1 100%);
+            color: #232931;
+            font-weight: bold;
+        }
+
+        .backspace:hover,
+        .backspace:focus {
+            background: linear-gradient(135deg, #d1d1d1 80%, #a5a5a5 100%);
+            color: #232931;
+        }
+
+        .history {
+            background: linear-gradient(135deg, #468897 80%, #2193b0 100%);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .history:hover,
+        .history:focus {
+            background: linear-gradient(135deg, #2193b0 80%, #6dd5ed 100%);
+            color: #fff;
+        }
+
+        /* Align last two buttons (DEL and HIST) side by side */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+        }
+
+        .buttons> .backspace,
+        .buttons> .history {
+            grid-column: span 1;
+        }
+
+        /* Responsive for last row */
+        @media (max-width: 400px) {
+            .calculator {
+                width: 98vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <input type="text" class="display" id="display" autocomplete="off">
+        <!-- Top row: Clear, Delete, History -->
+        <div class="buttons top-row" style="margin-bottom:1rem;">
+            <button class="button clear" onclick="clearDisplay()">C</button>
+            <button class="button backspace" onclick="backspace()">DEL</button>
+            <button class="button history" onclick="toggleHistory()">HIST</button>
+        </div>
+        <!-- Scientific functions -->
+        <div class="buttons" style="margin-bottom:1rem;">
+            <button class="button operator" onclick="calculateSqrt()">√</button>
+            <button class="button operator" onclick="calculatePower()">x²</button>
+            <button class="button operator" onclick="appendToDisplay('(')">(</button>
+            <button class="button operator" onclick="appendToDisplay(')')">)</button>
+        </div>
+        <!-- Bottom grid: Numbers and Operators -->         
+        <div class="buttons bottom-grid">
+            <button class="button" onclick="appendToDisplay('7')">7</button>
+            <button class="button" onclick="appendToDisplay('8')">8</button>
+            <button class="button" onclick="appendToDisplay('9')">9</button>
+            <button class="button operator" onclick="appendToDisplay('/')">/</button>
+            <button class="button" onclick="appendToDisplay('4')">4</button>
+            <button class="button" onclick="appendToDisplay('5')">5</button>
+            <button class="button" onclick="appendToDisplay('6')">6</button>
+            <button class="button operator" onclick="appendToDisplay('*')">*</button>
+            <button class="button" onclick="appendToDisplay('1')">1</button>
+            <button class="button" onclick="appendToDisplay('2')">2</button>
+            <button class="button" onclick="appendToDisplay('3')">3</button>
+            <button class="button operator" onclick="appendToDisplay('-')">-</button>
+            <button class="button" onclick="appendToDisplay('0')">0</button>
+            <button class="button" onclick="appendToDisplay('.')">.</button>
+            <button class="button equal" onclick="calculate()">=</button>
+            <button class="button operator" onclick="appendToDisplay('+')">+</button>
+        </div>
+        <div id="historyPanel" style="display:none; margin-top:1rem; background:#232931; border-radius:12px; padding:1rem; color:#fff; max-height:120px; overflow-y:auto; font-size:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+            <strong>History</strong>
+            <ul id="historyList" style="list-style:none; padding-left:0; margin-top:0.5em;"></ul>
+        </div>
+    </div>
+    <script>
+        let displayValue = "";
+        let lastResult = null;
+        let history = [];
+
+        // Sync displayValue with input field if user edits manually
+        document.getElementById("display").addEventListener("input", function(e) {
+            displayValue = e.target.value;
+        });
+
+        function appendToDisplay(value) {
+            const input = document.getElementById("display");
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            // Insert at cursor position
+            displayValue = input.value.slice(0, start) + value + input.value.slice(end);
+            input.value = displayValue;
+            // Move cursor after inserted value
+            input.setSelectionRange(start + value.length, start + value.length);
+        }
+
+        function clearDisplay() {
+            displayValue = "";
+            lastResult = null;
+            document.getElementById("display").value = displayValue;
+        }
+
+        function backspace() {
+            const input = document.getElementById("display");
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (start === end && start > 0) {
+                displayValue = input.value.slice(0, start - 1) + input.value.slice(end);
+                input.value = displayValue;
+                input.setSelectionRange(start - 1, start - 1);
+            } else if (start !== end) {
+                displayValue = input.value.slice(0, start) + input.value.slice(end);
+                input.value = displayValue;
+                input.setSelectionRange(start, start);
+            }
+        }
+
+        function calculate() {
+            try {
+                let expr = document.getElementById("display").value.replace(/(\+|\-|\*|\/){2,}/g, (m) => m[0]);
+                if (/[^0-9\+\-\*\/\.\(\)]/.test(expr)) throw "Invalid";
+                lastResult = Function('"use strict";return (' + expr + ')')();
+                if (lastResult === undefined || isNaN(lastResult)) throw "Error";
+                // Save to history
+                history.unshift({ expr: expr, result: lastResult });
+                if (history.length > 10) history.pop();
+                updateHistory();
+                displayValue = lastResult.toString();
+                document.getElementById("display").value = displayValue;
+                document.getElementById("display").setSelectionRange(displayValue.length, displayValue.length);
+            } catch (error) {
+                displayValue = "";
+                document.getElementById("display").value = "Error";
+            }
+        }
+
+        function updateHistory() {
+            const list = document.getElementById("historyList");
+            list.innerHTML = "";
+            history.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `${item.expr} = ${item.result}`;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleHistory() {
+            const panel = document.getElementById("historyPanel");
+            panel.style.display = panel.style.display === "none" ? "block" : "none";
+        }
+
+        function calculateSqrt() {
+            try {
+                const value = parseFloat(displayValue);
+                if (isNaN(value)) throw "Invalid";
+                if (value < 0) throw "Cannot calculate square root of negative number";
+                lastResult = Math.sqrt(value);
+                history.unshift({ expr: `√(${value})`, result: lastResult });
+                if (history.length > 10) history.pop();
+                updateHistory();
+                displayValue = lastResult.toString();
+                document.getElementById("display").value = displayValue;
+            } catch (error) {
+                displayValue = "";
+                document.getElementById("display").value = "Error";
+            }
+        }
+
+        function calculatePower() {
+            try {
+                const value = parseFloat(displayValue);
+                if (isNaN(value)) throw "Invalid";
+                lastResult = Math.pow(value, 2);
+                history.unshift({ expr: `${value}²`, result: lastResult });
+                if (history.length > 10) history.pop();
+                updateHistory();
+                displayValue = lastResult.toString();
+                document.getElementById("display").value = displayValue;
+            } catch (error) {
+                displayValue = "";
+                document.getElementById("display").value = "Error";
+            }
+        }
+
+        // Keyboard input: supports numbers, operators, parentheses, decimal, Enter, Backspace, C
+        document.addEventListener('keydown', function(e) {
+            const input = document.getElementById("display");
+            if (document.activeElement !== input) return;
+            const key = e.key;
+            if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (key.toLowerCase() === 'c' && !e.ctrlKey) {
+                e.preventDefault();
+                clearDisplay();
+            }
+        });
+
+        // Automatically focus the input box on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById("display");
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        });
+    </script>
+</body>
+
+</html>
